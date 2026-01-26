@@ -53,7 +53,7 @@ static void run_update(char* argv0)
 
     std::string cmd =
         "curl -L -o \"" + new_exe.string() +
-        "\" https://github.com/YOUR_ORG/YOUR_REPO/releases/latest/download/BQBN.exe";
+        "\" https://github.com/CiaranWang/BQBN-Reborn/releases/download/v0.1.1/BQBN-Reborn.exe";
 
     if (system(cmd.c_str()) != 0) {
         std::cout << "[UPDATE] Download failed.\n";
