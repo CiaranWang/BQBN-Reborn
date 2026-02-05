@@ -21,11 +21,13 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 # -------------------------------
 # Collect source files
 # -------------------------------
-file(GLOB SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
+set(SOURCES
+    "src/main.cpp"
+    "src/BQBN-Reborn.cpp"
+    "src/lbm.cpp"
+    "src/obstacle.cpp"
+    "src/output.cpp")
 
-# -------------------------------
-# Create executable
-# -------------------------------
 add_executable(BQBN-Reborn ${SOURCES})
 
 
