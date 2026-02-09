@@ -20,7 +20,7 @@ using namespace std;
 // ======================================================
 // Version
 // ======================================================
-static const std::string PROGRAM_VERSION = "1.0.0";
+static const std::string PROGRAM_VERSION = "1.0.1";
 
 static void print_version()
 {
@@ -123,7 +123,7 @@ int main(int argc, char* argv[])
         else if (arg == "--checkpoint" && i + 1 < argc) {
             checkpoint = std::stoi(argv[++i]);
         }
-        else if (arg == "--tunnel_radias" && i + 1 < argc) {
+        else if (arg == "--tunnel" && i + 1 < argc) {
             tunnel_r = std::stoi(argv[++i]);
         }
         else if (arg == "--mirror") {

@@ -100,7 +100,7 @@ static void Stream()
             {
                 int x_temp = (x + ex[i] + lx) % lx;
                 int y_temp = (y + ey[i] + ly) % ly;
-                const size_t base_temp = static_cast<size_t>(x_temp) * ly * 9 + static_cast<size_t>(y_temp) * 9 + i;
+                const size_t base_temp = static_cast<size_t>(x_temp) * ly * 9u + static_cast<size_t>(y_temp) * 9u + i;
 
                 f_temp_R[base_temp] = f_R[base_y + i];
                 f_temp_B[base_temp] = f_B[base_y + i];
@@ -131,9 +131,9 @@ static void PressureBoundary()
         f_R[idw + 5] = 1.0 / 6 * rho_in;
         f_R[idw + 8] = 1.0 / 6 * rho_in; 
 
-        f_B[ide + 3] = -2.0 / 3 * rho_out;
-        f_B[ide + 7] = -1.0 / 6 * rho_out;
-        f_B[ide + 6] = -1.0 / 6 * rho_out;
+        f_B[ide + 3] = 2.0 / 3 * rho_out;
+        f_B[ide + 7] = 1.0 / 6 * rho_out;
+        f_B[ide + 6] = 1.0 / 6 * rho_out;
     }
 }
 
