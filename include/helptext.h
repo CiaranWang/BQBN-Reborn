@@ -17,12 +17,13 @@ Options:
   --checkpoint INTEGER          Write output every M steps (default: 200)
   
   --tunnel N               radius of tunnel, tunnel width = 2N+1 (default: no tunnel)
-  --mirror [VALUE] Enable mirror mode (VALUE: 1/true/TRUE = on, 0/false/FALSE = off; if omitted => on)   
+  --mirror		Enable mirror mode
+  --defoam		Enable defoaming for red fluid.
 
 
 Example:
   BQBN-Reborn.exe -i parameters.ini -o ./results -n exp1  --seed 123 --step 10000 --checkpoint 300 --tunnel 2 --mirror
-  BQBN-Reborn.exe -i parameters.ini -o ./results -n exp1  --seed 123 --step 10000 --checkpoint 300 --mirror true
+  BQBN-Reborn.exe -i parameters.ini -o ./results -n exp1  --seed 123 --step 10000 --checkpoint 300 --mirror --defoam
   BQBN-Reborn.exe -i parameters.ini -n exp1
 
 Report bugs to: wangzs1995@163.com

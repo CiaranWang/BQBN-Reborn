@@ -12,6 +12,7 @@ extern std::filesystem::path output_folder;
 extern std::string project;
 extern int tunnel_r;
 extern bool mirror;
+extern bool defoam;
 
 extern int seed;
 extern int cycles;
@@ -122,4 +123,5 @@ void MirrorTrans();
 void OutInfo(const std::optional<int>& seed);
 void OutThreeKindom(int step);
 void OutStatus(int step);
+void OutStatus_Defoam(int step);
 void OutSlice(int step, int x);

@@ -20,7 +20,7 @@ using namespace std;
 // ======================================================
 // Version
 // ======================================================
-static const std::string PROGRAM_VERSION = "1.0.1";
+static const std::string PROGRAM_VERSION = "1.1.0";
 
 static void print_version()
 {
@@ -126,26 +126,11 @@ int main(int argc, char* argv[])
         else if (arg == "--tunnel" && i + 1 < argc) {
             tunnel_r = std::stoi(argv[++i]);
         }
+        else if (arg == "--defoam") {
+            defoam = true;
+        }
         else if (arg == "--mirror") {
-            if (i + 1 < argc) {
-                string next = argv[i + 1];
-                if (next == "1" || next == "true" || next == "TRUE") {
-                    mirror = true;
-                    ++i; // skip the value
-                }
-                else if (next == "0" || next == "false" || next == "FALSE") {
-                    mirror = false;
-                    ++i; // skip the value
-                }
-                else {
-                    // next argument is not a valid value → treat --mirror as flag
-                    mirror = true;
-                }
-            }
-            else {
-                // no value → treat --mirror as flag
-                mirror = true;
-            }
+            mirror = true;
         }
         else {
             cerr << "Unknown or incomplete argument: " << arg << "\n";
@@ -194,6 +179,7 @@ int main(int argc, char* argv[])
         std::cout << "No tunnel" << std::endl;
 
     std::cout << "Mirror: " << (mirror ? "ON" : "OFF") << std::endl;
+    std::cout << "Defoaming: " << (defoam ? "ON" : "OFF") << std::endl;
 
     unsigned int rng_seed = seed.value_or(static_cast<unsigned int>(time(nullptr)));
     std::srand(rng_seed);  // for std::rand() usage

@@ -502,12 +502,11 @@ void LBM()
         if ((step % checkpoint) == 0)
         {
             OutThreeKindom(step);
-            OutStatus(step);
+            if (defoam)
+                OutStatus_Defoam(step);
+            else
+                OutStatus(step);
         }
-        /*if ((step % frame_point) == 0)
-        {
-            FrameStatus(step, project);
-        }*/
         step++;
     }
 }

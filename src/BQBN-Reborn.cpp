@@ -20,6 +20,7 @@ std::filesystem::path output_folder;
 std::string project;
 int tunnel_r = 0;
 bool mirror = false;
+bool defoam = false;
 
 int cycles = 1000;
 int checkpoint = 200;

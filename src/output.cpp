@@ -3,6 +3,8 @@
 #include <filesystem>
 #include <cmath>
 #include <string>
+#include <queue>
+#include <utility>
 //#include <opencv2/opencv.hpp>
 #include "BQBN-Reborn.h"
 
@@ -107,6 +109,118 @@ void OutThreeKindom(int step)
     std::cout << "Saved: " << file_name << "\n";
 }
 
+void OutStatus_Defoam(int step)
+{
+    const std::filesystem::path file_name =
+        output_folder / (project + "_" + std::to_string(step) + "_Status.plt");
+
+    std::ofstream file(file_name);
+    if (!file)
+    {
+        std::cerr << "Error opening file: " << file_name << '\n';
+        return;
+    }
+
+    file << "variables = x, y, stat, u_x, u_y, rhoR, rhoB, rho, obst\n";
+    file << "zone i=" << lx << ", j=" << ly << ", f=point\n";
+
+    const size_t ncell = static_cast<size_t>(lx) * static_cast<size_t>(ly);
+
+    std::vector<int> status(ncell, 0);
+    std::vector<int> connected(ncell, 0);
+
+    // Step 1: assign status
+    for (int x = 0; x < lx; ++x)
+    {
+        const size_t base0_x = static_cast<size_t>(x) * static_cast<size_t>(ly);
+
+        for (int y = 0; y < ly; ++y)
+        {
+            const size_t ys = static_cast<size_t>(y);
+            const size_t id0 = base0_x + ys;   // IDX0(x,y)
+
+            if (obstacle[id0] == 1)
+                status[id0] = 1;   // obstacle
+            else if (rho_R[id0] >= rho_B[id0])
+                status[id0] = 2;   // red
+            else
+                status[id0] = 0;   // blue
+        }
+    }
+
+    // 8-neighbor connectivity
+    const int dx[8] = { -1, -1, -1,  0, 0, 1, 1, 1 };
+    const int dy[8] = { -1,  0,  1, -1, 1,-1, 0, 1 };
+
+    std::queue<std::pair<int, int>> q;
+
+    // Step 2: seed BFS from red cells on left boundary x = 0
+    for (int y = 0; y < ly; ++y)
+    {
+        const size_t id0 = IDX0(0, y);
+        if (status[id0] == 2)
+        {
+            connected[id0] = 1;
+            q.push({ 0, y });
+        }
+    }
+
+    // Step 3: BFS over red cells
+    while (!q.empty())
+    {
+        const auto [x, y] = q.front();
+        q.pop();
+
+        for (int k = 0; k < 8; ++k)
+        {
+            const int nx = x + dx[k];
+            const int ny = y + dy[k];
+
+            if (nx < 0 || nx >= lx || ny < 0 || ny >= ly)
+                continue;
+
+            const size_t nid = IDX0(nx, ny);
+
+            if (status[nid] == 2 && connected[nid] == 0)
+            {
+                connected[nid] = 1;
+                q.push({ nx, ny });
+            }
+        }
+    }
+
+    // Step 4: output, removing disconnected red pieces
+    for (int x = 0; x < lx; x++)
+    {
+        const size_t base0_x = static_cast<size_t>(x) * static_cast<size_t>(ly);
+        const size_t base2_x = base0_x * 2u;
+
+        for (int y = 0; y < ly; y++)
+        {
+            const size_t ys = static_cast<size_t>(y);
+            const size_t id0 = base0_x + ys;       // IDX0(x,y)
+            const size_t id2 = base2_x + ys * 2u;  // IDX2(x,y,0) is id2+0, IDX2(x,y,1) is id2+1
+
+            int stat=status[id0];
+
+            if (stat == 2 && connected[id0] == 0)
+                stat = 0;
+
+            file << x << '\t'
+                << y << '\t'
+                << stat << '\t'
+                << u[id2 + 0u] << '\t'
+                << u[id2 + 1u] << '\t'
+                << rho_R[id0] << '\t'
+                << rho_B[id0] << '\t'
+                << rho[id0] << '\t'
+                << obstacle[id0] << '\n';
+        }
+    }
+
+    std::cout << file_name << '\n';
+}
+
 void OutStatus(int step)
 {
     const std::filesystem::path file_name =
@@ -122,23 +236,25 @@ void OutStatus(int step)
     file << "variables = x, y, stat, u_x, u_y, rhoR, rhoB, rho, obst\n";
     file << "zone i=" << lx << ", j=" << ly << ", f=point\n";
 
-    for (int x = 0; x < lx; x++)
+    for (int x = 0; x < lx; ++x)
     {
         const size_t base0_x = static_cast<size_t>(x) * static_cast<size_t>(ly);
         const size_t base2_x = base0_x * 2u;
 
-        for (int y = 0; y < ly; y++)
+        for (int y = 0; y < ly; ++y)
         {
             const size_t ys = static_cast<size_t>(y);
-            const size_t id0 = base0_x + ys;       // IDX0(x,y)
+            const size_t id0 = base0_x + ys;   // IDX0(x,y)
             const size_t id2 = base2_x + ys * 2u;  // IDX2(x,y,0) is id2+0, IDX2(x,y,1) is id2+1
 
-            const int obst = obstacle[id0];
-
             int stat;
-            if (obst == 1)          stat = 1;   // obstacle
-            else if (rho_R[id0] >= rho_B[id0]) stat = 2; // red dominates
-            else                    stat = 0;   // blue dominates
+
+            if (obstacle[id0] == 1)
+                stat = 1;   // obstacle
+            else if (rho_R[id0] >= rho_B[id0])
+                stat = 2;   // red
+            else
+                stat = 0;   // blue
 
             file << x << '\t'
                 << y << '\t'
@@ -148,7 +264,7 @@ void OutStatus(int step)
                 << rho_R[id0] << '\t'
                 << rho_B[id0] << '\t'
                 << rho[id0] << '\t'
-                << obst << '\n';
+                << obstacle[id0] << '\n';
         }
     }
 
